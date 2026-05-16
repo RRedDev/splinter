@@ -1,6 +1,7 @@
 package me.rred.splinter.client.timer;
 
 import me.rred.splinter.Splinter;
+import me.rred.splinter.client.SplinterClient;
 import net.minecraft.util.math.BlockPos;
 
 public class TimerStateMachine {
@@ -49,6 +50,8 @@ public class TimerStateMachine {
         startPos = null;
         endPos = null;
         timer.stop();
+        SplinterClient.setManager.addTime(timer.fetchElapsedTime());
+        timer.clear();
     }
 
     public void onBlockSelected(BlockPos pos) {
@@ -94,7 +97,7 @@ public class TimerStateMachine {
                     onClear();
                 }
             }
-            case RUNNING -> {
+            case RUNNING -> { // time recorded here!
                 if (pos.equals(endPos)) {
                     Splinter.LOGGER.info("stop timer! (2block end broken)");
                     onStop();
@@ -115,7 +118,7 @@ public class TimerStateMachine {
                 timer.start();
                 currState = State.RUNNING;
             }
-            case RUNNING -> {
+            case RUNNING -> { // time recorded here as well
                 onStop();
             }
         }

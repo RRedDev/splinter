@@ -25,7 +25,6 @@ public class TimerHud {
     }
 
     private static String formatTime(long ms) {
-        Splinter.LOGGER.info("formatting");
         long minutes = ms / 60000;
         long seconds = (ms % 60000) / 1000;
         long millis = ms % 1000;
