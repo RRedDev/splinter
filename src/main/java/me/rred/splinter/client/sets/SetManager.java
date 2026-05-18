@@ -16,6 +16,7 @@ public class SetManager {
          SplinterSet generalSet = new SplinterSet("general");
          sets.add(generalSet);
          activeSet = generalSet;
+         displayedSetA = generalSet;
     }
 
     public void addTime(long ms) {
@@ -49,11 +50,11 @@ public class SetManager {
 
     public SplinterSet getDisplayedSetA() { return displayedSetA; };
 
-    public void setDisplayedSetA(SplinterSet set) { displayedSetA = set;}
+    public void setDisplayedSetA(SplinterSet set) { if (set == null || displayedSetB != set) displayedSetA = set;}
 
     public SplinterSet getDisplayedSetB() { return displayedSetB; };
 
-    public void setDisplayedSetB(SplinterSet set) { displayedSetB = set;}
+    public void setDisplayedSetB(SplinterSet set) { if (set == null || displayedSetA != set) displayedSetB = set;}
 
     public List<SplinterSet> getAllSets() {
         return sets;

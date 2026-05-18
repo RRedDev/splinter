@@ -35,8 +35,4 @@ public class SplinterTimer {
         }
         return endTime - startTime;
     }
-
-    public boolean isRunning() {
-        return running;
-    }
 }

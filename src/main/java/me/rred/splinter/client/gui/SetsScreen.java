@@ -24,15 +24,16 @@ import java.util.List;
 public class SetsScreen extends Screen {
     private SplinterSet viewedSet;
 
-    // screen fields
+    // main screen fields
     private int screenTop, screenBottom, screenLeft, screenRight;
     private int listTop, listBottom;
     private int tabHeight = 20;
     private int statsHeight = 40;
     private int offset = 25;
     private int padding = 5;
-    private int scrollOffset = 0;
-    private static final int LINE_HEIGHT = 12;
+    private int headerButtonLen;
+    private SplinterSet setA;
+    private SplinterSet setB;
 
     // overlay fields
     private enum Overlay { NONE, CREATE, REMOVE }
@@ -47,8 +48,8 @@ public class SetsScreen extends Screen {
 
     // panel fields
     private SetsListPanel setsListPanel;
-    private int setsListWidth;
-    private int timesListWidth;
+    private int setsListWidth = 80;
+    private int timesListWidth = 80;
     // add time panels aswell
 
     public SetsScreen() {
@@ -57,10 +58,13 @@ public class SetsScreen extends Screen {
 
     @Override
     protected void init() {
+        buttons.clear();
+        children.clear();
+
         viewedSet = SplinterClient.setManager.getActiveSet();
         List<SplinterSet> sets = SplinterClient.setManager.getAllSets();
-        SplinterSet setA = SplinterClient.setManager.getDisplayedSetA();
-        SplinterSet setB = SplinterClient.setManager.getDisplayedSetB();
+        setA = SplinterClient.setManager.getDisplayedSetA();
+        setB = SplinterClient.setManager.getDisplayedSetB();
 
         // inside screen dimensions
         screenTop = offset;
@@ -74,19 +78,30 @@ public class SetsScreen extends Screen {
 
         // panels for middle section
         int listHeight = listBottom - listTop;
-        setsListWidth = 80;
-        setsListPanel = new SetsListPanel(screenLeft, listTop, setsListWidth, listHeight, sets);
+        setsListPanel = new SetsListPanel(screenLeft, listTop, setsListWidth, listHeight, sets,
+                (set, button) -> {
+                        if (button == 0) { // left click
+                            SplinterClient.setManager.setActiveSet(set);
+                        } else if (button == 1) { // right click logic
+                            // RC + SHIFT or both are full
+                            if (hasShiftDown() || (setA != null && setB != null)) {
+                                // context menu
+                            } else if (setA == null) {
+                                SplinterClient.setManager.setDisplayedSetA(set);
+                                init();
+                            } else if (setB == null) {
+                                SplinterClient.setManager.setDisplayedSetB(set);
+                                init();
+                            }
+                        }
+                    }
+                );
 
-        timesListWidth = 60;
+        // set creation button
+        int createButtonWidth = 80;
+        int createButtonHeight = 20;
 
-        // sets creation / removal buttons
-        int setsButtonWidth = 60;
-        int setsButtonHeight = 20;
-        int createX = screenLeft;
-        int removeX = createX + setsButtonWidth;
-        int setsButtonY = screenTop;
-
-        addButton(new ButtonWidget(createX, setsButtonY, setsButtonWidth, setsButtonHeight,
+        addButton(new ButtonWidget(screenLeft, screenTop, createButtonWidth, createButtonHeight,
                 new LiteralText("CREATE"),
                 button -> openCreateOverlay()
         ));
@@ -95,41 +110,32 @@ public class SetsScreen extends Screen {
         overlayX = (width - overlayWidth) / 2;
         overlayY = (height - overlayHeight) / 2;
 
-        // TimesListPanel timesAPanel = new TimesListPanel()
+        // dynamic header buttons to clear the specified displayed set
+        int headerWidth = timesListWidth;
+        headerButtonLen = 20;
+        int startX = screenLeft + createButtonWidth;
 
-        // initialize tabs (set buttons)
-        /*
-        for (int i = 0; i < sets.size(); i++) {
-            SplinterSet set = sets.get(i);
-            int x = offset + (i * buttonWidth);
-            int y = offset;
-
-            addButton(new ButtonWidget(x, y, buttonWidth, buttonHeight,
-                    new LiteralText(set.getName()),
+        if (setA != null) {
+            addButton(new ButtonWidget(startX, screenTop, headerButtonLen, headerButtonLen,
+                    new LiteralText("-"),
                     button -> {
-                        viewedSet = set;
-                        scrollOffset = 0;
+                        Splinter.LOGGER.info("clearing setA");
+                        SplinterClient.setManager.setDisplayedSetA(null);
+                        init();
                     }
             ));
         }
-        // initialize set creation/removal buttons
 
-        int setsButtonWidth = 55;
-        int setsButtonHeight = 20;
-        int buttonX = screenLeft + padding + 100;
-        int row1Y = screenBottom - statsHeight;
-        int row2Y = screenBottom - setsButtonHeight;
-
-        addButton(new ButtonWidget(buttonX, row1Y, setsButtonWidth, setsButtonHeight,
-                new LiteralText("CREATE"),
-                button -> openCreatePanel()
-        ));
-
-        addButton(new ButtonWidget(buttonX, row2Y, setsButtonWidth, setsButtonHeight,
-                new LiteralText("REMOVE"),
-                button -> openRemovePanel()
-        ));
-         */
+        if (setB != null) {
+            addButton(new ButtonWidget(startX + headerWidth, screenTop, headerButtonLen, headerButtonLen,
+                    new LiteralText("-"),
+                    button -> {
+                        Splinter.LOGGER.info("clearing setB");
+                        SplinterClient.setManager.setDisplayedSetB(null);
+                        init();
+                    }
+            ));
+        }
     }
 
     @Override
@@ -141,6 +147,14 @@ public class SetsScreen extends Screen {
 
         return super.mouseScrolled(mouseX, mouseY, amount);
     }
+
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if(setsListPanel.handleClick(mouseX, mouseY, button)) return true;
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
@@ -179,10 +193,24 @@ public class SetsScreen extends Screen {
         int borderWidth = 1;
 
         int list2X = screenLeft + setsListWidth;
-        int list3X = screenLeft + setsListWidth + timesListWidth;
+        int list3X = list2X + timesListWidth;
 
         fill(matrixStack, list2X, listTop, list2X + borderWidth, listBottom, borderColor);
         fill(matrixStack, list3X, listTop, list3X + borderWidth, listBottom, borderColor);
+
+        // draw headers
+        int headerTextY = screenTop + (tabHeight - textRenderer.fontHeight + 1) / 2;
+        int setAX = screenLeft + setsListWidth + headerButtonLen + padding;
+        int setBX = setAX + timesListWidth;
+
+        if (setA != null) {
+            textRenderer.drawWithShadow(matrixStack, setA.getName(), setAX, headerTextY, 0xFFFFFF);
+        }
+
+        if (setB != null) {
+            int nameX = screenLeft + timesListWidth + headerButtonLen + padding;
+            textRenderer.drawWithShadow(matrixStack, setB.getName(), setBX, headerTextY, 0xFFFFFF);
+        }
 
         // draw middle ListPanels
 
