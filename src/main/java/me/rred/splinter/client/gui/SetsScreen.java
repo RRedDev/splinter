@@ -47,6 +47,8 @@ public class SetsScreen extends Screen {
 
     // panel fields
     private SetsListPanel setsListPanel;
+    private int setsListWidth;
+    private int timesListWidth;
     // add time panels aswell
 
     public SetsScreen() {
@@ -71,11 +73,11 @@ public class SetsScreen extends Screen {
         listBottom = screenBottom - statsHeight;
 
         // panels for middle section
-        int setsListY = listTop + padding;
-        int setsListWidth = 60;
-        int setsListHeight = listBottom - listTop - padding;
+        int listHeight = listBottom - listTop;
+        setsListWidth = 80;
+        setsListPanel = new SetsListPanel(screenLeft, listTop, setsListWidth, listHeight, sets);
 
-        setsListPanel = new SetsListPanel(screenLeft, setsListY, setsListWidth, setsListHeight, sets);
+        timesListWidth = 60;
 
         // sets creation / removal buttons
         int setsButtonWidth = 60;
@@ -132,29 +134,21 @@ public class SetsScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        List<Long> times = viewedSet.getTimes();
-        int visibleHeight = listBottom - listTop - 10; // 5px padding top and bottom
-        int maxScroll = Math.max(0, times.size() * LINE_HEIGHT - visibleHeight);
+        if (setsListPanel.isMouseOver(mouseX, mouseY)) {
+            setsListPanel.scroll(amount);
+            return true;
+        }
 
-        scrollOffset -= (int) (amount * LINE_HEIGHT);
-        scrollOffset = Math.max(0, Math.min(scrollOffset, maxScroll));
-
-        return true;
+        return super.mouseScrolled(mouseX, mouseY, amount);
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // close overlay if Esc is pressed
-        if (keyCode == GLFW.GLFW_KEY_ESCAPE && activeOverlay != Overlay.NONE) {
-            closeOverlay();
-            return true;
-        }
-
         // leave screen with Esc or specified hotkey
         if (keyCode == GLFW.GLFW_KEY_ESCAPE || KeyInputHandler.GUI_SETS_BIND.getKeyBinding().matchesKey(keyCode, scanCode)) {
             // close overlay instead of screen
             if (keyCode == GLFW.GLFW_KEY_ESCAPE && activeOverlay != Overlay.NONE) {
-                activeOverlay = Overlay.NONE;
+                closeOverlay();
                 return true;
             }
             SetsScreen.toggle();
@@ -183,16 +177,18 @@ public class SetsScreen extends Screen {
         // draw vertical borders between columns
         int borderColor = 0x80555555;
         int borderWidth = 1;
-        for (int i = 1; i < 4; i++) {
-            int borderX = screenLeft + (i * 60);
-            fill(matrixStack, borderX, listTop, borderX + borderWidth, listBottom, borderColor);
-        }
+
+        int list2X = screenLeft + setsListWidth;
+        int list3X = screenLeft + setsListWidth + timesListWidth;
+
+        fill(matrixStack, list2X, listTop, list2X + borderWidth, listBottom, borderColor);
+        fill(matrixStack, list3X, listTop, list3X + borderWidth, listBottom, borderColor);
 
         // draw middle ListPanels
 
         enableScissor();
-        setsListPanel.render(matrixStack, textRenderer);
-        // just focuson rendering the setsListPanel for now
+        setsListPanel.render(matrixStack, textRenderer, mouseX, mouseY);
+        // just focus on rendering the setsListPanel for now
         disableScissor();
 
         renderStats(matrixStack);
@@ -320,11 +316,10 @@ public class SetsScreen extends Screen {
         confirmButton = new ButtonWidget(confirmX, confirmY, confirmWidth, confirmHeight,
                 new LiteralText("CONFIRM"),
                 button-> {
+                    if (createNameField == null) return;
                     String name = createNameField.getText().trim();
                     if(!name.isEmpty()) {
                         SplinterClient.setManager.createSet(name);
-                        activeOverlay = Overlay.NONE;
-                        children.remove(createNameField);
                         closeOverlay();
                     }
 
@@ -345,7 +340,9 @@ public class SetsScreen extends Screen {
             createNameField = null;
         }
         // clear confirm button and re-add real buttons
+        confirmButton = null;
         buttons.clear();
+        children.clear();
         init();
     }
 

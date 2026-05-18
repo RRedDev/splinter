@@ -28,7 +28,7 @@ public class SetManager {
     }
 
     public void createSet(String name) {
-        if (sets.size() >= 8) return; // arbitrary cap of 8 for now
+        if (sets.size() >= 20) return; // arbitrary cap of 8 for now
         SplinterSet newSet = new SplinterSet(name);
         sets.add(newSet);
     }

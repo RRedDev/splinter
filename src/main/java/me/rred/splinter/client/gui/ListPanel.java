@@ -6,7 +6,7 @@ import net.minecraft.client.util.math.MatrixStack;
 public abstract class ListPanel {
     protected int x, y, width, height;
     protected int scrollOffset = 0;
-    protected static final int LINE_HEIGHT = 12;
+    protected static final int LINE_HEIGHT = 14;
 
     public ListPanel(int x, int y , int width, int height) {
         this.x = x;
@@ -23,11 +23,11 @@ public abstract class ListPanel {
         scrollOffset = Math.max(0, Math.min(scrollOffset, maxScroll));
     }
 
-    public abstract void render(MatrixStack matrixStack, TextRenderer textRenderer);
+    public abstract void render(MatrixStack matrixStack, TextRenderer textRenderer, int mouseX, int mouseY);
 
     public boolean isMouseOver(double mouseX, double mouseY) {
-        return mouseX >= x && mouseX <= width &&
-                mouseY >= y && mouseY <= height;
+        return mouseX >= x && mouseX <= x + width &&
+                mouseY >= y && mouseY <= y + height;
     }
 
     public int getIndexAt(double mouseY) {
