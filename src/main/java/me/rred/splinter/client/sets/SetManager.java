@@ -13,7 +13,7 @@ public class SetManager {
 
 
     public SetManager() {
-         SplinterSet generalSet = new SplinterSet("general");
+         SplinterSet generalSet = new SplinterSet("general", true);
          sets.add(generalSet);
          activeSet = generalSet;
          displayedSetA = generalSet;
@@ -30,14 +30,16 @@ public class SetManager {
 
     public void createSet(String name) {
         if (sets.size() >= 20) return; // arbitrary cap of 8 for now
-        SplinterSet newSet = new SplinterSet(name);
+        SplinterSet newSet = new SplinterSet(name, false);
         sets.add(newSet);
     }
 
-    public void deleteSet(int idx) {
-        if (idx <= 0 || idx >= sets.size()) return; // 0 protects the general set
-        if (activeSet == sets.get(idx)) activeSet = sets.get(0); // fall back to general
-        sets.remove(idx);
+    public void deleteSet(SplinterSet set) {
+        if (set.isGeneral()) return;
+        sets.remove(set);
+        if (activeSet == set) activeSet = sets.get(0); // fall back to general
+        if (displayedSetA == set) displayedSetA = null;
+        if (displayedSetB == set) displayedSetB = null;
     }
 
     public SplinterSet getActiveSet() {
@@ -50,11 +52,31 @@ public class SetManager {
 
     public SplinterSet getDisplayedSetA() { return displayedSetA; };
 
-    public void setDisplayedSetA(SplinterSet set) { if (set == null || displayedSetB != set) displayedSetA = set;}
+    public void setDisplayedSetA(SplinterSet set) {
+        // swap
+        if (set == displayedSetB) {
+            displayedSetB = displayedSetA;
+        }
+        displayedSetA = set;
+    }
+    public void clearDisplayedSetA() {
+        displayedSetA = null;
+    }
+
 
     public SplinterSet getDisplayedSetB() { return displayedSetB; };
 
-    public void setDisplayedSetB(SplinterSet set) { if (set == null || displayedSetA != set) displayedSetB = set;}
+    public void setDisplayedSetB(SplinterSet set) {
+        // swap
+        if (set == displayedSetA) {
+            displayedSetA = displayedSetB;
+        }
+        displayedSetB = set;
+    }
+
+    public void clearDisplayedSetB() {
+        displayedSetB = null;
+    }
 
     public List<SplinterSet> getAllSets() {
         return sets;

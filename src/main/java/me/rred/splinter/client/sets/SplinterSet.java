@@ -8,9 +8,11 @@ import java.util.List;
 public class SplinterSet {
     private String name;
     private List<Long> times = new ArrayList<>(); // for now, data will just be non-persistent
+    private final boolean isGeneral;
 
-    public SplinterSet(String name) {
+    public SplinterSet(String name, boolean isGeneral) {
         this.name = name;
+        this.isGeneral = isGeneral;
     }
 
     public void addTime(long ms) {
@@ -44,4 +46,9 @@ public class SplinterSet {
     public void setName(String newName) {
         name = newName;
     }
+
+    public boolean isGeneral() {
+        return isGeneral;
+    }
+
 }

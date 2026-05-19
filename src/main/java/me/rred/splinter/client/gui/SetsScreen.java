@@ -12,14 +12,12 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.tag.Tag;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
-import java.sql.Time;
 import java.util.List;
 
 public class SetsScreen extends Screen {
@@ -51,6 +49,7 @@ public class SetsScreen extends Screen {
     private SetsListPanel setsListPanel;
     private TimesListPanel timesListPanelA;
     private TimesListPanel timesListPanelB;
+    private ContextMenu contextMenu = new ContextMenu();
     private int borderColor = 0x80555555;
     private int borderWidth = 1;
     private int setsListWidth = 80;
@@ -58,6 +57,8 @@ public class SetsScreen extends Screen {
     private int list2X;
     private int list3X;
     private int list4X;
+    private int lastClickX, lastClickY;
+
 
     public SetsScreen() {
         super(new LiteralText("Splinter Sets"));
@@ -97,10 +98,26 @@ public class SetsScreen extends Screen {
                             // RC + SHIFT or both are full
                             if (hasShiftDown() || (setA != null && setB != null)) {
                                 // context menu
-                            } else if (setA == null) {
+                                contextMenu.open(lastClickX, lastClickY, set,
+                                        () -> {
+                                            // set as A
+                                            SplinterClient.setManager.setDisplayedSetA(set);
+                                            init();
+                                        },
+                                        () -> {
+                                            // set as B
+                                            SplinterClient.setManager.setDisplayedSetB(set);
+                                            init();
+                                        },
+                                        () -> {
+                                            // delete set
+                                            openRemoveOverlay(set);
+                                        }
+                                );
+                            } else if (setA == null && setB != set) {
                                 SplinterClient.setManager.setDisplayedSetA(set);
                                 init();
-                            } else if (setB == null) {
+                            } else if (setB == null && setA != set) {
                                 SplinterClient.setManager.setDisplayedSetB(set);
                                 init();
                             }
@@ -135,7 +152,7 @@ public class SetsScreen extends Screen {
             addButton(new ButtonWidget(startX + borderWidth, screenTop, headerButtonLen, headerButtonLen,
                     new LiteralText("-"),
                     button -> {
-                        SplinterClient.setManager.setDisplayedSetA(null);
+                        SplinterClient.setManager.clearDisplayedSetA();
                         init();
                     }
             ));
@@ -145,7 +162,7 @@ public class SetsScreen extends Screen {
             addButton(new ButtonWidget(startX + headerWidth + (2 * borderWidth), screenTop, headerButtonLen, headerButtonLen,
                     new LiteralText("-"),
                     button -> {
-                        SplinterClient.setManager.setDisplayedSetB(null);
+                        SplinterClient.setManager.clearDisplayedSetB();
                         init();
                     }
             ));
@@ -184,16 +201,19 @@ public class SetsScreen extends Screen {
         }
 
         // render middle ListPanels
-
         enableScissor();
-        setsListPanel.render(matrixStack, textRenderer, mouseX, mouseY);
-        timesListPanelA.render(matrixStack, textRenderer, mouseX, mouseY);
-        timesListPanelB.render(matrixStack, textRenderer, mouseX, mouseY);
-        // just focus on rendering the setsListPanel for now
+        boolean showSetsHover = !contextMenu.isVisible();
+        setsListPanel.render(matrixStack, textRenderer, mouseX, mouseY, showSetsHover);
+        timesListPanelA.render(matrixStack, textRenderer, mouseX, mouseY, false);
+        timesListPanelB.render(matrixStack, textRenderer, mouseX, mouseY, false);
         disableScissor();
 
-        // render stats and overlays
+        // render context menu
+        if (contextMenu.isVisible()) {
+            contextMenu.render(matrixStack, textRenderer, mouseX, mouseY);
+        }
 
+        // render stats and overlays
         renderStats(matrixStack);
 
         if (activeOverlay != Overlay.NONE) {
@@ -227,6 +247,15 @@ public class SetsScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        lastClickX = (int) mouseX;
+        lastClickY = (int) mouseY;
+        // context menu gets priority
+        if (contextMenu.isVisible()) {
+            if (contextMenu.handleClick(mouseX, mouseY)) return true;
+            contextMenu.close();
+            return true;
+        }
+
         if(setsListPanel.handleClick(mouseX, mouseY, button)) return true;
         return super.mouseClicked(mouseX, mouseY, button);
     }
@@ -266,7 +295,6 @@ public class SetsScreen extends Screen {
     }
 
     private void renderOverlay(MatrixStack matrixStack) {
-
         fill(matrixStack, overlayX, overlayY, overlayX + overlayWidth, overlayY + overlayHeight, 0xFF222222);
 
         if (activeOverlay == Overlay.CREATE) {
@@ -286,6 +314,10 @@ public class SetsScreen extends Screen {
                 int imgSize = 80;
                 int imgX = (width - imgSize) / 2;
                 int imgY = overlayY - imgSize - 4;
+
+                if (confirmButton != null) {
+                    confirmButton.active = true;
+                }
 
                 assert client != null;
                 client.getTextureManager().bindTexture(WARNING_ICON);
@@ -343,9 +375,23 @@ public class SetsScreen extends Screen {
         addButton(confirmButton);
     }
 
-    private void openRemoveOverlay() {
+    private void openRemoveOverlay(SplinterSet set) {
         showWarningIcon = true; //Math.random() < 0.01; // 1% nolan
         activeOverlay = Overlay.REMOVE;
+
+        int confirmWidth = 60;
+        int confirmHeight = 20;
+        int confirmX = (width - confirmWidth) / 2; // centered
+        int confirmY = overlayY + 32;
+
+        confirmButton = new ButtonWidget(confirmX, confirmY, confirmWidth, confirmHeight,
+                new LiteralText("CONFIRM"),
+                button-> {
+                    SplinterClient.setManager.deleteSet(set);
+                    closeOverlay();
+                }
+        );
+        addButton(confirmButton);
     }
 
     private void closeOverlay() {
