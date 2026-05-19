@@ -35,6 +35,16 @@ public class SplinterSet {
         return (long) times.stream().mapToLong(Long::longValue).average().orElse(0);
     }
 
+    public long getStdDev() {
+        if (times.size() < 2) return 0;
+        double avg = getAverage();
+        double variance = times.stream()
+                .mapToDouble(t -> Math.pow(t - avg, 2))
+                .average()
+                .orElse(0);
+        return (long) Math.sqrt(variance);
+    }
+
     public long getBest() {
         return (long) times.stream().mapToLong(Long::longValue).min().orElse(0);
     }

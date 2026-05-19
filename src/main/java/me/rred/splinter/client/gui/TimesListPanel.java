@@ -26,9 +26,6 @@ public class TimesListPanel extends ListPanel {
     public void render(MatrixStack matrixStack, TextRenderer textRenderer, int mouseX, int mouseY, boolean showHover) {
         if (set != null) {
             List<Long> times = set.getTimes();
-            // draw top border for first
-            int borderColor = 0x80666666;
-            DrawableHelper.fill(matrixStack, x, y - scrollOffset, x + width,  y - scrollOffset + 1, borderColor);
             hoveredDelIndex = -1;
 
             for (int i = 0; i < times.size(); i++) {
@@ -54,7 +51,7 @@ public class TimesListPanel extends ListPanel {
                 textRenderer.draw(matrixStack, "x", delTextX, delTextY, deleteColor);
 
                 // draw bottom border for each record
-                DrawableHelper.fill(matrixStack, x, itemY + LINE_HEIGHT, x + width, itemY + LINE_HEIGHT + 1, borderColor);
+                DrawableHelper.fill(matrixStack, x, itemY + LINE_HEIGHT, x + width, itemY + LINE_HEIGHT + 1, 0x80666666);
 
                 int textY = itemY + (LINE_HEIGHT - textRenderer.fontHeight + 1) / 2 + 1;
                 String number = (i + 1) + ".";
@@ -64,5 +61,16 @@ public class TimesListPanel extends ListPanel {
                 textRenderer.drawWithShadow(matrixStack, timeText, x + 20, textY, 0xFFFFFF);
             }
         }
+    }
+
+    public boolean handleClick(double mouseX, double mouseY, int button) {
+        if (!isMouseOver(mouseX, mouseY)) return false;
+        if (set == null) return false;
+
+        if (hoveredDelIndex >= 0 && button == 0) {
+            set.removeTime(hoveredDelIndex);
+            return true;
+        }
+        return false;
     }
 }

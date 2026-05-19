@@ -21,18 +21,19 @@ import java.awt.*;
 import java.util.List;
 
 public class SetsScreen extends Screen {
-    private SplinterSet viewedSet;
+    private SplinterSet activeSet;
 
     // main screen fields
     private int screenTop, screenBottom, screenLeft, screenRight;
     private int listTop, listBottom;
+    private int headerTextY;
     private int tabHeight = 20;
-    private int statsHeight = 40;
     private int offset = 25;
     private int padding = 5;
     private int headerButtonLen;
     private SplinterSet setA;
     private SplinterSet setB;
+    private static final int textColor = 0xFFFFFF;
 
     // overlay fields
     private enum Overlay { NONE, CREATE, REMOVE }
@@ -50,7 +51,6 @@ public class SetsScreen extends Screen {
     private TimesListPanel timesListPanelA;
     private TimesListPanel timesListPanelB;
     private ContextMenu contextMenu = new ContextMenu();
-    private int borderColor = 0x80555555;
     private int borderWidth = 1;
     private int setsListWidth = 80;
     private int timesListWidth = 80;
@@ -69,24 +69,25 @@ public class SetsScreen extends Screen {
         buttons.clear();
         children.clear();
 
-        viewedSet = SplinterClient.setManager.getActiveSet();
+        activeSet = SplinterClient.setManager.getActiveSet();
         List<SplinterSet> sets = SplinterClient.setManager.getAllSets();
         setA = SplinterClient.setManager.getDisplayedSetA();
         setB = SplinterClient.setManager.getDisplayedSetB();
 
         // inside screen dimensions
         screenTop = offset;
-        screenBottom = height - offset;
+        screenBottom = height - (int)(offset * 1.5) ;
         screenLeft = offset;
         screenRight = width - offset;
 
         // middle section cutoff points
         listTop = screenTop + tabHeight;
-        listBottom = screenBottom - statsHeight;
+        listBottom = screenBottom;
         // list starting X coordinate (after border) list1 starts at screenLeft
         list2X = screenLeft + setsListWidth + borderWidth;
         list3X = list2X + timesListWidth + borderWidth;
         list4X = list3X + timesListWidth + borderWidth;
+
 
         // panels for middle section
         int listHeight = listBottom - listTop;
@@ -134,7 +135,7 @@ public class SetsScreen extends Screen {
         int createButtonHeight = 20;
 
         addButton(new ButtonWidget(screenLeft, screenTop, createButtonWidth, createButtonHeight,
-                new LiteralText("CREATE"),
+                new LiteralText("NEW SET"),
                 button -> openCreateOverlay()
         ));
 
@@ -172,32 +173,47 @@ public class SetsScreen extends Screen {
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
 
-        // draw GUI title text
-        drawCenteredText(matrixStack, textRenderer, title, width / 2, 10, 0xFFFFFF);
+        // GUI title text
+        drawCenteredText(matrixStack, textRenderer, title, width / 2, 10, textColor);
 
-        // draw backgrounds
-        // tabs bar (top)
-        fill(matrixStack, screenLeft, screenTop, screenRight, screenTop + tabHeight, 0x80333333);
+        // top panel (tabs)
+        int topPanelColor = 0x952D2D2D;
+        fill(matrixStack, screenLeft, screenTop, screenRight, screenTop + tabHeight, topPanelColor);
 
-        // time list (middle)
-        fill(matrixStack, screenLeft, listTop, screenRight, listBottom, 0x80222222);
+        // middle panel (sets, times, stats)
+        int middlePanelColor = 0x80222222;
+        fill(matrixStack, screenLeft, listTop, screenRight, listBottom, middlePanelColor);
 
-        // draw vertical borders between columns
-        fill(matrixStack, list2X - borderWidth, screenTop, list2X, listBottom, borderColor);
-        fill(matrixStack, list3X - borderWidth, screenTop, list3X, listBottom, borderColor);
-        fill(matrixStack, list4X - borderWidth, screenTop, list4X, listBottom, borderColor);
+        // outer border
+        // top
+        int outerBorderColor = 0xFF444444;
+        fill(matrixStack, screenLeft - borderWidth, screenTop - borderWidth, screenRight + borderWidth, screenTop, outerBorderColor);
+        // bottom
+        fill(matrixStack, screenLeft - borderWidth, screenBottom, screenRight + borderWidth, screenBottom + borderWidth, outerBorderColor);
+        // left
+        fill(matrixStack, screenLeft - borderWidth, screenTop, screenLeft, screenBottom, outerBorderColor);
+        // right
+        fill(matrixStack, screenRight, screenTop, screenRight + borderWidth, screenBottom, outerBorderColor);
 
-        // draw headers
-        int headerTextY = screenTop + (tabHeight - textRenderer.fontHeight + 1) / 2;
+        // vertical borders between columns
+        int verticalBorderColor = 0xFF3A3A3A;
+        fill(matrixStack, list2X - borderWidth, screenTop, list2X, listBottom, verticalBorderColor);
+        fill(matrixStack, list3X - borderWidth, screenTop, list3X, listBottom, verticalBorderColor);
+        fill(matrixStack, list4X - borderWidth, screenTop, list4X, listBottom, verticalBorderColor);
+
+        // headers
+        headerTextY = screenTop + (tabHeight - textRenderer.fontHeight + 1) / 2;
         int setAX = list2X + headerButtonLen + padding;
         int setBX = setAX + timesListWidth;
+        int headersBorderColor = outerBorderColor;
+        DrawableHelper.fill(matrixStack, screenLeft, listTop, screenRight,  listTop + borderWidth, headersBorderColor);
 
         if (setA != null) {
-            textRenderer.drawWithShadow(matrixStack, setA.getName(), setAX, headerTextY, 0xFFFFFF);
+            textRenderer.drawWithShadow(matrixStack, setA.getName(), setAX, headerTextY, textColor);
         }
 
         if (setB != null) {
-            textRenderer.drawWithShadow(matrixStack, setB.getName(), setBX, headerTextY, 0xFFFFFF);
+            textRenderer.drawWithShadow(matrixStack, setB.getName(), setBX, headerTextY, textColor);
         }
 
         // render middle ListPanels
@@ -257,6 +273,8 @@ public class SetsScreen extends Screen {
         }
 
         if(setsListPanel.handleClick(mouseX, mouseY, button)) return true;
+        if(timesListPanelA != null && timesListPanelA.handleClick(mouseX, mouseY, button)) return true;
+        if(timesListPanelB != null && timesListPanelB.handleClick(mouseX, mouseY, button)) return true;
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
@@ -281,17 +299,84 @@ public class SetsScreen extends Screen {
     }
 
     private void renderStats(MatrixStack matrixStack) {
-        int col1X = screenLeft + padding;
-        int row1Y = screenBottom - statsHeight + padding;
-        int row2Y = screenBottom - 9 - padding;
+        int statsX = list4X;
+        int headerWidth = screenRight - statsX;
+        drawCenteredText(matrixStack, textRenderer, new LiteralText("Stats Panel"), statsX + headerWidth / 2, headerTextY, textColor);
 
-        String avgTime = TimerFormatter.format(viewedSet.getAverage());
-        String bestTime = TimerFormatter.format(viewedSet.getBest());
+        int panelWidth = screenRight - list4X;
+        int panelX = list4X;
 
-        textRenderer.drawWithShadow(matrixStack, "AVG:", col1X, row1Y, 0xFFFFFF);
-        textRenderer.drawWithShadow(matrixStack, avgTime, col1X + 40, row1Y, 0xFFFFFF);
-        textRenderer.drawWithShadow(matrixStack, "BEST:", col1X, row2Y, 0xFFFFFF);
-        textRenderer.drawWithShadow(matrixStack, bestTime, col1X + 40, row2Y, 0xFFFFFF);
+        int dividerColor = 0xFF3A3A3A;
+        // beginning position of the next column, after the border
+        int colWidth = panelWidth / 4;
+        int stats2X = panelX + panelWidth / 6 + borderWidth;
+        int stats3X = stats2X + colWidth + borderWidth;
+        int stats4X = stats3X + colWidth + borderWidth;
+
+        int rowHeight = 18;
+        int rowTop = listTop + rowHeight + padding;
+        int rowBottom = listTop + rowHeight * 4;
+
+
+        // vertical dividers
+        fill(matrixStack, stats2X - borderWidth, listTop + borderWidth, stats2X, rowBottom, dividerColor);
+        fill(matrixStack, stats3X - borderWidth, listTop + borderWidth, stats3X, rowBottom, dividerColor);
+        fill(matrixStack, stats4X - borderWidth, listTop + borderWidth, stats4X, rowBottom, dividerColor);
+
+        // info column (best, avg, SD)
+        textRenderer.drawWithShadow(matrixStack, "BEST", panelX + padding, rowTop, textColor);
+        textRenderer.drawWithShadow(matrixStack, "AVG", panelX + padding, rowTop + rowHeight, textColor);
+        textRenderer.drawWithShadow(matrixStack, "SD", panelX + padding, rowTop + rowHeight * 2, textColor);
+
+        // headers
+        textRenderer.drawWithShadow(matrixStack, "Set A", stats2X + padding, listTop + padding, textColor);
+        textRenderer.drawWithShadow(matrixStack, "Set B", stats3X + padding, listTop + padding, textColor);
+        textRenderer.drawWithShadow(matrixStack, "Diff", stats4X + padding, listTop + padding, textColor);
+
+        // data! setA col data (best, avg, SD), draw dashes if empty/null
+        long[] setAStats = null;
+        long[] setBStats = null;
+        if (setA != null && !setA.getTimes().isEmpty()) {
+            setAStats = new long[]{setA.getBest(), setA.getAverage(), setA.getStdDev()};
+            for (int i = 0; i < 2; i++) {
+                textRenderer.drawWithShadow(matrixStack, TimerFormatter.format(setAStats[i]), stats2X + padding, rowTop + (i * rowHeight), textColor);
+            }
+            String sdText = String.format("%.2fs", setAStats[2] / 1000.0);
+            textRenderer.drawWithShadow(matrixStack, sdText, stats2X + padding, rowTop + (2 * rowHeight), textColor);
+        } else {
+            for (int i = 0; i < 3; i++) {
+                textRenderer.drawWithShadow(matrixStack, "-", stats2X + padding, rowTop + (i * rowHeight), textColor);
+            }
+        }
+
+        // setB stats
+        if (setB != null && !setB.getTimes().isEmpty()) {
+            setBStats = new long[]{setB.getBest(), setB.getAverage(), setB.getStdDev()};
+            for (int i = 0; i < 2; i++) {
+                textRenderer.drawWithShadow(matrixStack, TimerFormatter.format(setBStats[i]), stats3X + padding, rowTop + (i* rowHeight), textColor);
+            }
+            String sdText = String.format("%.2fs", setBStats[2] / 1000.0);
+            textRenderer.drawWithShadow(matrixStack, sdText, stats3X + padding, rowTop + (2 * rowHeight), textColor);
+        } else {
+            for (int i = 0; i < 3; i++) {
+                textRenderer.drawWithShadow(matrixStack, "-", stats3X + padding, rowTop + (i * rowHeight), textColor);
+            }
+        }
+
+        // diff stats
+        if (setAStats != null && setBStats != null) {
+            for (int i = 0; i < 2; i++) {
+                long diff = setAStats[i] - setBStats[i];
+                String diffText = (diff > 0 ? "+" : "") + TimerFormatter.format(Math.abs(diff));
+                int diffColor = diff > 0 ? 0xFF5555 : 0x55FF55; // red if A is slower, green if faster
+                textRenderer.drawWithShadow(matrixStack, diffText, stats4X + padding, rowTop + (i * rowHeight), diffColor);
+            }
+        } else {
+            for (int i = 0; i < 2; i++) {
+                textRenderer.drawWithShadow(matrixStack, "-", stats4X + padding, rowTop + (i * rowHeight), textColor);
+            }
+        }
+
     }
 
     private void renderOverlay(MatrixStack matrixStack) {
@@ -304,7 +389,7 @@ public class SetsScreen extends Screen {
                 confirmButton.active = SetNameValidation.isValid(name);
             }
 
-            drawCenteredText(matrixStack, textRenderer, new LiteralText("Name your set"), width / 2, overlayY + 5, 0xFFFFFF);
+            drawCenteredText(matrixStack, textRenderer, new LiteralText("Name your set"), width / 2, overlayY + 5, textColor);
             if (createNameField != null) {
                 createNameField.render(matrixStack, 0, 0, 0);
             }
@@ -323,7 +408,7 @@ public class SetsScreen extends Screen {
                 client.getTextureManager().bindTexture(WARNING_ICON);
                 DrawableHelper.drawTexture(matrixStack, imgX, imgY, 0, 0, imgSquish, imgSquish, imgSize, imgSize);
             }
-            drawCenteredText(matrixStack, textRenderer, new LiteralText("Are you sure?"), width / 2, overlayY + 10, 0xFFFFFF);
+            drawCenteredText(matrixStack, textRenderer, new LiteralText("Are you sure?"), width / 2, overlayY + 10, textColor);
         }
     }
 
@@ -376,7 +461,7 @@ public class SetsScreen extends Screen {
     }
 
     private void openRemoveOverlay(SplinterSet set) {
-        showWarningIcon = true; //Math.random() < 0.01; // 1% nolan
+        showWarningIcon = Math.random() < 0.01; // 1% nolan
         activeOverlay = Overlay.REMOVE;
 
         int confirmWidth = 60;
