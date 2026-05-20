@@ -1,38 +1,45 @@
 package me.rred.splinter.client.timer;
 
+import me.rred.splinter.client.SplinterClient;
 import org.lwjgl.system.CallbackI;
 
 public class SplinterTimer {
+    private enum State {IDLE, RUNNING, STOPPED}
+    private State state = State.IDLE;
+
     private long startTime = -1;
     private long endTime = -1;
-    private boolean running = false;
 
     public void start() {
         startTime = System.currentTimeMillis();
         endTime = -1;
-        running = true;
+        state = State.RUNNING;
     }
 
     public void stop() {
-        if (running) {
+        if (state == State.RUNNING) {
             endTime = System.currentTimeMillis();
-            running = false;
+            state = State.STOPPED;
+            SplinterClient.setManager.addTime(fetchElapsedTime());
         }
     }
 
     public void clear() {
         startTime = -1;
         endTime = -1;
-        running = false;
+        state = State.IDLE;
     }
 
     public long fetchElapsedTime() {
         if (startTime == -1) {
             return 0;
         }
-        if (running) {
+        if (isRunning()) {
             return System.currentTimeMillis() - startTime;
         }
         return endTime - startTime;
     }
+
+    public boolean isRunning() { return state == State.RUNNING; }
+    public boolean isStopped() { return state == State.STOPPED; }
 }

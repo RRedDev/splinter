@@ -1,12 +1,12 @@
 {
 	"required": true,
-	"package": "me.rred.splinter.client.mixin",
+	"package": "me.rred.splinter.mixin",
 	"compatibilityLevel": "JAVA_8",
+
 	"mixins": [
-		"GameRendererMixin",
-		"BlockBreakMixin",
-		"InGameHudMixin"
+		"ServerScoreboardMixin"
 	],
+
 	"injectors": {
 		"defaultRequire": 1
 	},

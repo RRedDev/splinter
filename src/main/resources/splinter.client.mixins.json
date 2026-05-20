@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "package": "me.rred.splinter.client.mixin",
+  "compatibilityLevel": "JAVA_8",
+
+  "client": [
+    "BlockBreakMixin",
+    "GameRendererMixin",
+    "InGameHudMixin"
+  ],
+
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

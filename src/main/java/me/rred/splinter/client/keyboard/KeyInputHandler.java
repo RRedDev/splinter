@@ -16,7 +16,6 @@ public class KeyInputHandler {
     public static final String SELECT_BLOCK = "key.splinter.select_block";
     public static final String CLEAR_SELECTION = "key.splinter.clear_selection";
     public static final String TOGGLE_TIMER = "key.splinter.toggle_timer";
-    public static final String LOG_TIME = "key.splinter.log_time";
     public static final String GUI_SETS = "key.splinter.gui_sets";
     public static KeyBind GUI_SETS_BIND;
 
@@ -29,7 +28,6 @@ public class KeyInputHandler {
                 new KeyBind(SELECT_BLOCK, GLFW.GLFW_KEY_H, BlockTargetHandler::toggleOutline),
                 new KeyBind(CLEAR_SELECTION, GLFW.GLFW_KEY_K, SplinterClient.tsm::onClear),
                 new KeyBind(TOGGLE_TIMER, GLFW.GLFW_KEY_N, SplinterClient.tsm::toggleTimer),
-                new KeyBind(LOG_TIME, GLFW.GLFW_KEY_M, SplinterClient.tsm::logTime),
                 GUI_SETS_BIND
         };
 
