@@ -1,6 +1,8 @@
 package me.rred.splinter.client.keyboard;
 
+import me.rred.splinter.Splinter;
 import me.rred.splinter.client.SplinterClient;
+import me.rred.splinter.client.SplinterStateMachine;
 import me.rred.splinter.client.gui.SetsScreen;
 import me.rred.splinter.client.handler.BlockTargetHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -17,6 +19,7 @@ public class KeyInputHandler {
     public static final String CLEAR_SELECTION = "key.splinter.clear_selection";
     public static final String TOGGLE_TIMER = "key.splinter.toggle_timer";
     public static final String GUI_SETS = "key.splinter.gui_sets";
+    public static final String TOGGLE_ACTIVE = "key.splinter.toggle_active";
     public static KeyBind GUI_SETS_BIND;
 
 
@@ -26,8 +29,14 @@ public class KeyInputHandler {
 
         KeyBind[] keyBinds = new KeyBind[] {
                 new KeyBind(SELECT_BLOCK, GLFW.GLFW_KEY_H, BlockTargetHandler::toggleOutline),
-                new KeyBind(CLEAR_SELECTION, GLFW.GLFW_KEY_K, SplinterClient.tsm::onClear),
-                new KeyBind(TOGGLE_TIMER, GLFW.GLFW_KEY_N, SplinterClient.tsm::toggleTimer),
+                new KeyBind(TOGGLE_TIMER, GLFW.GLFW_KEY_N, SplinterClient.routeHandler::toggleTimer),
+                new KeyBind(TOGGLE_ACTIVE, GLFW.GLFW_KEY_M, () -> {
+                    if (SplinterClient.ssm.getState() == SplinterStateMachine.State.ACTIVE) {
+                        SplinterClient.ssm.setIdle();
+                    } else {
+                        SplinterClient.ssm.setActive();
+                    }
+                }),
                 GUI_SETS_BIND
         };
 

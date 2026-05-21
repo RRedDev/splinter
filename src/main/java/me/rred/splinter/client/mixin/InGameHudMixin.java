@@ -1,5 +1,7 @@
 package me.rred.splinter.client.mixin;
 
+import me.rred.splinter.client.SplinterClient;
+import me.rred.splinter.client.SplinterStateMachine;
 import me.rred.splinter.client.timer.TimerHud;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -26,5 +28,16 @@ public abstract class InGameHudMixin {
         if (this.client.options.hudHidden) return;
 
         TimerHud.render(matrixStack, getFontRenderer());
+
+        String stateText = SplinterClient.ssm.getState().toString();
+        String setText = SplinterClient.setManager.getActiveSet().getName();
+        if (!stateText.equals("IDLE")) {
+            int color = (stateText.equals("ACTIVE")) ? 0x55FF55 : 0xFFAA00;
+            String setLabel = setText + " - ";
+            int setTextWidth = getFontRenderer().getWidth(setLabel);
+            getFontRenderer().drawWithShadow(matrixStack, setLabel, 10, 10, 0xFFFFFF);
+            getFontRenderer().drawWithShadow(matrixStack, stateText, 10 + setTextWidth, 10, color);
+        }
+
     }
 }

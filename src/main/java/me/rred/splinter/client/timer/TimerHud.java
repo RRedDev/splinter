@@ -12,8 +12,8 @@ import java.awt.*;
 
 public class TimerHud {
 
-    public static void render(MatrixStack matrixStack, TextRenderer fontRenderer) {
-        if (!SplinterClient.tsm.isActive()) {
+    public static void render(MatrixStack matrixStack, TextRenderer textRenderer) {
+        if (!SplinterClient.timer.isRunning()) {
             return;
         }
 
@@ -21,7 +21,7 @@ public class TimerHud {
         float scaledHeight = client.getWindow().getScaledHeight();
         float y = scaledHeight / 2;
 
-        String time =  TimerFormatter.format(SplinterClient.tsm.getElapsedMs());
-        fontRenderer.drawWithShadow(matrixStack, new LiteralText(time), 10, y, Color.WHITE.getRGB());
+        String time =  TimerFormatter.format(SplinterClient.timer.fetchElapsedTime());
+        textRenderer.drawWithShadow(matrixStack, new LiteralText(time), 10, y, Color.WHITE.getRGB());
     }
 }

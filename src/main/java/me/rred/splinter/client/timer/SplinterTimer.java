@@ -20,7 +20,6 @@ public class SplinterTimer {
         if (state == State.RUNNING) {
             endTime = System.currentTimeMillis();
             state = State.STOPPED;
-            SplinterClient.setManager.addTime(fetchElapsedTime());
         }
     }
 
