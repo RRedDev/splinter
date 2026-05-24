@@ -1,24 +1,47 @@
 # Splinter
-A Minecraft mod that records bastion routes/splits and logs them into sets to compare.
+A Minecraft mod that records bastion routes/splits and logs them into sets for comparison.
 
 ## Requirements:
 Java 17+: https://www.youtube.com/watch?v=WGFEMkWilK0  
 Fabric API 0.18.0 build 387: https://modrinth.com/mod/fabric-api/versions?g=1.16.1
 
 ## Features:
-- **Route Editing** — highlight blocks for start/end events (for now just block break and prac map start/end) 
-- **Segment timer** — automatically starts on specified start/end events
-- **SplinterSets UI** - UI to organize runs into named sets for comparison
-- **Stats panel** — compare average, best, and standard deviation between two sets
-- **Timer HUD** — displays current segment time in game
-- **Hotkeys** — configurable keybinds for all actions including
-  - **Open SS UI** - B
-  - **Toggle timer** - N (Manual start/end)
-  - **Select Start/End Blocks** - H
-  - **Clear Selection** - K
- 
+- Tick aligned Route timer with map trigger, block break, and position trigger support
+- Multiple sets for comparing different route variations
+- Stats panel showing best, average, and standard deviation
+- Edit mode for configuring route triggers in-world
+
+## Default Keybinds
+- **Edit Select** - M
+- **Open Edit GUI** - N
+- **Open Sets GUI** - B
+- **Toggle Edit Mode** - J
+- **Toggle Timer** - ; (semicolon)
+
+## Triggers
+- **MAP** - Default, run when LBP Map starts and stops (pressing button / dropping pickaxe)
+- **BLOCK_BREAK** - must select a valid block, triggers on break. if block is air then the run is invalidated
+- **POSITION** - triggers when player walks into the selected block. can overlap START / END
+
+## Usage (edit mode)
+1. Enter idle mode by pressing the "■" button in the sets list
+2. Press J to enter edit mode
+3. Select a slot (START/END), choose trigger type in the Edit GUI, then select the position in-world
+4. Confirm changes in the Edit GUI
+5. Run the route - the timer starts and stops based on the selected triggers
+
+## Known Issues
+- Overlays (rename) text bleeding behind confirm button, overlay may become unresponsive or broken when pressing other buttons. press ESC and re-open to fix
+- Route data not persistent between sessions (planned for 1.1.0)
+
 ## TODO:
-- Default events (route start/end in the practice map)
-- Postiion-based events
-- Save/load routes for sets
-- Edit route mode
+- Persistent Data
+- Refactor Overlays
+- Piglin Information / Piglin-based triggers
+- Barter triggers
+- Intermediary splits (splits between START and END)
+- Edit mode redesign (maybe some keybind overwrites / scroll wheel for more intuitive controls)
+- general code optimization! (theres some ugly stuff)
+
+## Credits
+Inspired by and referenced [BastionHelper](https://github.com/LeSaRXD/BastionHelper) by Laysar.
