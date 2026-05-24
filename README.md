@@ -36,10 +36,16 @@ Fabric API 0.18.0 build 387: https://modrinth.com/mod/fabric-api/versions?g=1.16
 
 ## TODO:
 - Persistent Data
+- Chest timer pause option
+- Timer stop on route end (don't dissapear)
+- more chat messages for unresponsive binds (edit binds)
+- Unlimited active sets / Intermediary splits (splits between START and END)
 - Refactor Overlays
+- Edit button in context menu?
+- Set moving / rework general (drag n drop)
 - Piglin Information / Piglin-based triggers
 - Barter triggers
-- Intermediary splits (splits between START and END)
+- Customizable UI (block outline, timer, GUIs, HUD)
 - Edit mode redesign (maybe some keybind overwrites / scroll wheel for more intuitive controls)
 - general code optimization! (theres some ugly stuff)
 
