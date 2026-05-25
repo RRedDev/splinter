@@ -1,10 +1,14 @@
-package me.rred.splinter.client.events.triggers;
+package me.rred.splinter.client.routing.triggers;
 
 public class MapTrigger extends Trigger {
     private int prevTick = 0;
 
     public MapTrigger(TriggerSlot triggerSlot) {
         super(triggerSlot);
+    }
+
+    public Trigger copy() {
+        return new MapTrigger(triggerSlot);
     }
 
     public void mapTick(int tick) {

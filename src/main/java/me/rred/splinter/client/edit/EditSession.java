@@ -1,10 +1,12 @@
 package me.rred.splinter.client.edit;
 
 import me.rred.splinter.client.SplinterClient;
-import me.rred.splinter.client.events.triggers.BlockBreakTrigger;
-import me.rred.splinter.client.events.triggers.MapTrigger;
-import me.rred.splinter.client.events.triggers.PositionTrigger;
-import me.rred.splinter.client.events.triggers.Trigger;
+import me.rred.splinter.client.edit.gui.EditHud;
+import me.rred.splinter.client.edit.gui.EditOutlines;
+import me.rred.splinter.client.routing.triggers.BlockBreakTrigger;
+import me.rred.splinter.client.routing.triggers.MapTrigger;
+import me.rred.splinter.client.routing.triggers.PositionTrigger;
+import me.rred.splinter.client.routing.triggers.Trigger;
 import me.rred.splinter.client.edit.gui.EditScreen;
 import me.rred.splinter.client.keyboard.KeyInputHandler;
 import me.rred.splinter.client.rendering.BlockOutlineRenderer;
@@ -39,78 +41,9 @@ public class EditSession {
         this.pendingEnd = ogEnd;
     }
 
-    public void renderHud(MatrixStack matrixStack, TextRenderer textRenderer) {
-        // HUD text;
-        int x = 10;
-        int y = 25; // below state indicator
-
-        // start and end changes text
-
-        Trigger activeStart = editSet.getRoute().getStartTrigger();
-        Trigger activeEnd = editSet.getRoute().getEndTrigger();
-
-        String startText = "START: " + getTriggerHandle(activeStart);
-        String endText = "END: " + getTriggerHandle(activeEnd);
-        int textHeight = textRenderer.fontHeight + 3;
-
-        if (!pendingStart.equals(activeStart)) startText += " → " + getTriggerHandle(pendingStart);
-        if (!pendingEnd.equals(activeEnd)) endText += " → " + getTriggerHandle(pendingEnd);
-
-        textRenderer.drawWithShadow(matrixStack, startText, x, y, 0xFFBB00);
-        textRenderer.drawWithShadow(matrixStack, endText, x, y + textHeight, 0xFFBB00);
-
-        // confirm message
-        if(hasChanges()) {
-            String confirmMessage = "Changes Made. Confirm or Cancel in GUI";
-            textRenderer.drawWithShadow(matrixStack, confirmMessage, x, y + textHeight * 2, 0xFF6A00);
-        }
-
-        // hotkey tips, gui and selection
-        int gap = 40;
-        // gui open
-        String guiOpenBind = KeyInputHandler.GUI_EDIT_BIND.getKeyBinding().getBoundKeyLocalizedText().getString();
-        String guiOpenText = "Open Edit GUI - " + guiOpenBind;
-        textRenderer.drawWithShadow(matrixStack, guiOpenText, x, y + textHeight + gap, 0xFFBB00);
-        // edit select
-        // edit mode hint
-        String editSelectBind = KeyInputHandler.EDIT_SELECT_BIND.getKeyBinding().getBoundKeyLocalizedText().getString();
-        String editSelectText = "Select Edit - " + editSelectBind;
-        textRenderer.drawWithShadow(matrixStack, editSelectText, x, y + textHeight * 2 + gap, 0xFFBB00);
-    }
-
-    public void renderOutlines() {
-        if (!SplinterClient.ssm.isInMap()) return;
-        Trigger activeStart = editSet.getRoute().getStartTrigger();
-        Trigger activeEnd = editSet.getRoute().getEndTrigger();
-
-        // extract the hovered block for selection and draw outline
-        Color hoverColor = Color.WHITE;
-        if (getActiveSlot() == Trigger.TriggerSlot.START) {
-            hoverColor = new Color(0, 100, 50);
-        } else if (getActiveSlot() == Trigger.TriggerSlot.END) {
-            hoverColor = new Color(100, 0, 50);
-        }
-        hoveredPos = getHoveredPos();
-        if (hoveredPos != null) {
-            new BlockOutlineRenderer(hoveredPos, hoverColor).render();
-        }
-
-        // selected block outlines
-        boolean activeShared = TriggersSharePos.check(activeStart, activeEnd);
-        renderTriggerOutline(activeStart, false, Color.GREEN , 0f);
-        renderTriggerOutline(activeEnd, false, Color.RED, activeShared ? 0.05f : 0f);
-
-        // pending block outlines
-        boolean pendingShared = TriggersSharePos.check(pendingStart, pendingEnd);
-        boolean startsShare = TriggersSharePos.check(pendingStart, ogStart);
-        boolean endsShare = TriggersSharePos.check(pendingEnd, ogEnd);
-
-        if (pendingStart != null && !startsShare) {
-            renderTriggerOutline(pendingStart, true, new Color(0, 200, 100), 0f);
-        }
-        if (pendingEnd != null && !endsShare) {
-            renderTriggerOutline(pendingEnd, true, new Color(200, 0, 100), pendingShared ? 0.05f : 0f);
-        }
+    public void render(MatrixStack matrixStack, TextRenderer textRenderer) {
+        EditHud.render(matrixStack, textRenderer, this);
+        EditOutlines.render(this);
     }
 
     public void selectActive() {
@@ -226,21 +159,6 @@ public class EditSession {
         pendingEnd = ogEnd;
     }
 
-    private String getTriggerHandle(Trigger trigger) {
-        if (trigger == null) return "NONE";
-        return switch (trigger.getType()) {
-            case MAP -> "MAP";
-            case BLOCK_BREAK -> {
-                BlockPos pos = ((BlockBreakTrigger) trigger).getPos();
-                yield pos != null ? "BREAK (" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + ")" : "BREAK (unset)";
-            }
-            case POSITION -> {
-                BlockPos pos = ((PositionTrigger) trigger).getPos();
-                yield pos != null ? "POS (" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + ")" : "POS (unset)";
-            }
-        };
-    }
-
     private void renderTriggerOutline(Trigger trigger, boolean pending, Color color, float padding) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.world == null) return;
@@ -259,29 +177,29 @@ public class EditSession {
         }
     }
 
-    private BlockPos getHoveredPos() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player == null || client.world == null) return null;
-        if (!(client.crosshairTarget instanceof BlockHitResult hit)) return null;
-        if (getActiveType() == null) return null;
-
-        // block break: return non-air selected block
-        switch (getActiveType()) {
-            case BLOCK_BREAK -> {
-                BlockPos pos = hit.getBlockPos();
-                return client.world.getBlockState(pos).isAir() ? null : pos;
-            }
-            case POSITION ->{
-                BlockPos pos = hit.getBlockPos();
-                return client.world.getBlockState(pos).isAir() ? pos : pos.offset(hit.getSide());
-            }
-        }
-        return null;
+    public void setHoveredPos(BlockPos pos) {
+        hoveredPos = pos;
     }
 
     public boolean hasChanges() {
         return !pendingStart.equals(ogStart)
                 || !pendingEnd.equals(ogEnd);
+    }
+
+    public Trigger getOgStart() {
+        return ogStart;
+    }
+
+    public Trigger getOgEnd() {
+        return ogEnd;
+    }
+
+    public Trigger getPendingStart() {
+        return pendingStart;
+    }
+
+    public Trigger getPendingEnd() {
+        return pendingEnd;
     }
 
     public Trigger.TriggerSlot getActiveSlot() {
@@ -291,5 +209,6 @@ public class EditSession {
     public Trigger.TriggerType getActiveType() {
         return activeTrigger == null ? null : activeTrigger.getType();
     }
+
 
 }

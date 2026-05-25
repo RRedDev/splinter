@@ -1,5 +1,6 @@
 package me.rred.splinter.client.mixin;
 
+import me.rred.splinter.client.StateHud;
 import me.rred.splinter.client.edit.EditSession;
 import me.rred.splinter.client.SplinterClient;
 import me.rred.splinter.client.timer.TimerHud;
@@ -28,23 +29,6 @@ public abstract class InGameHudMixin {
         if (this.client.options.hudHidden) return;
 
         TimerHud.render(matrixStack, getFontRenderer());
-
-        String stateText = SplinterClient.ssm.getState().toString();
-        String setText = SplinterClient.setManager.getActiveSet().getName();
-        if (!stateText.equals("IDLE")) {
-            int color = (stateText.equals("ACTIVE")) ? 0x55FF55 : 0xFFBB00;
-            String setLabel = setText + " - ";
-            int setTextWidth = getFontRenderer().getWidth(setLabel);
-            getFontRenderer().drawWithShadow(matrixStack, setLabel, 10, 10, 0xFFFFFF);
-            getFontRenderer().drawWithShadow(matrixStack, stateText, 10 + setTextWidth, 10, color);
-
-            if (stateText.equals("EDIT")) {
-                EditSession session = SplinterClient.ssm.getEditSession();
-                if (session != null) {
-                    session.renderHud(matrixStack, getFontRenderer());
-                }
-            }
-        }
-
+        StateHud.render(matrixStack, getFontRenderer());
     }
 }

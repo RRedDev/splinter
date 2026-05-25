@@ -1,4 +1,4 @@
-package me.rred.splinter.client.events.triggers;
+package me.rred.splinter.client.routing.triggers;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.BlockPos;
@@ -28,6 +28,12 @@ public class PositionTrigger extends Trigger {
     public void reset() {
         super.reset();
         primed = false;
+    }
+
+    @Override
+    public Trigger copy() {
+        BlockPos posCopy = pos != null ? pos.mutableCopy() : null;
+        return new PositionTrigger(triggerSlot, posCopy);
     }
 
     public TriggerType getType() {

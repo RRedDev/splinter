@@ -2,6 +2,7 @@ package me.rred.splinter.client.sets.gui;
 
 import me.rred.splinter.client.SplinterClient;
 import me.rred.splinter.client.keyboard.KeyInputHandler;
+import me.rred.splinter.client.routing.Route;
 import me.rred.splinter.client.sets.SplinterSet;
 import me.rred.splinter.client.utils.SetNameValidation;
 import me.rred.splinter.client.utils.TimerFormatter;
@@ -131,6 +132,13 @@ public class SetsScreen extends Screen {
                                                 SplinterClient.setManager.getDisplayedSetB() != set),
                                         new ContextMenu.Option("Rename", () -> openRenameOverlay(set), 0xFFFFFF, true),
                                         new ContextMenu.Option("Clear", () -> openClearOverlay(set), 0xFFFFFF, !set.isEmpty()),
+                                        new ContextMenu.Option("Duplicate", () -> {
+                                            SplinterSet duplicate = new SplinterSet("Copy of " + set.getName(), false, new Route(set.getRoute()));
+                                            SplinterClient.setManager.addSet(duplicate);
+                                            init();
+                                            },
+                                                0xFFFFFF,
+                                                true),
                                         new ContextMenu.Option("Delete", () -> openRemoveOverlay(set), 0xFF5555, !set.isGeneral())
                                 ));
                             } else if (setA == null && setB != set) {

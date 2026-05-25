@@ -1,6 +1,6 @@
-package me.rred.splinter.client.events.triggers;
+package me.rred.splinter.client.routing.triggers;
 
-import me.rred.splinter.Splinter;
+import net.minecraft.block.Block;
 import net.minecraft.util.math.BlockPos;
 
 public class BlockBreakTrigger extends Trigger{
@@ -9,6 +9,12 @@ public class BlockBreakTrigger extends Trigger{
     public BlockBreakTrigger(TriggerSlot triggerSlot, BlockPos pos) {
         super(triggerSlot);
         this.pos = pos;
+    }
+
+    @Override
+    public Trigger copy() {
+        BlockPos posCopy = pos != null ? pos.mutableCopy() : null;
+        return new BlockBreakTrigger(triggerSlot, posCopy);
     }
 
     public TriggerType getType() {

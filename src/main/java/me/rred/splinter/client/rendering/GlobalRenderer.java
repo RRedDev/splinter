@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.rred.splinter.client.edit.EditSession;
 import me.rred.splinter.client.SplinterClient;
 import me.rred.splinter.client.SplinterStateMachine;
+import me.rred.splinter.client.edit.gui.EditOutlines;
 import net.minecraft.client.util.math.MatrixStack;
 
 public class GlobalRenderer {
@@ -32,7 +33,7 @@ public class GlobalRenderer {
 
         if (SplinterClient.ssm.getState() == SplinterStateMachine.State.EDIT) {
             EditSession session = SplinterClient.ssm.getEditSession();
-            if (session != null) session.renderOutlines();
+            if (session != null) EditOutlines.render(session);
         }
 
         GlStateManager.enableDepthTest();

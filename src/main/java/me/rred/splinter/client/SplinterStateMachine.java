@@ -86,7 +86,9 @@ public class SplinterStateMachine {
     public void setInMap(boolean inMap) {
         this.inMap = inMap;
         if (!inMap) {
-            SplinterClient.timer.clear();
+            if (!SplinterClient.timer.isStopped()) {
+                SplinterClient.timer.clear();
+            }
             Route route = SplinterClient.setManager.getActiveSet().getRoute();
             route.getStartTrigger().reset();
             route.getEndTrigger().reset();

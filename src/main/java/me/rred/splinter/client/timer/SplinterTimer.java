@@ -61,4 +61,5 @@ public class SplinterTimer {
     }
 
     public boolean isRunning() { return state == State.RUNNING; }
+    public boolean isStopped() { return state == State.STOPPED; }
 }

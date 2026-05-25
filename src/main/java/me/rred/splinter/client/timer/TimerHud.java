@@ -13,7 +13,7 @@ import java.awt.*;
 public class TimerHud {
 
     public static void render(MatrixStack matrixStack, TextRenderer textRenderer) {
-        if (!SplinterClient.timer.isRunning()) {
+        if (!(SplinterClient.timer.isRunning() || SplinterClient.timer.isStopped())) {
             return;
         }
 
@@ -21,7 +21,9 @@ public class TimerHud {
         float scaledHeight = client.getWindow().getScaledHeight();
         float y = scaledHeight / 2;
 
+        int color = SplinterClient.timer.isStopped() ? 0xFFD700 : 0xFFFFFF;
+
         String time =  TimerFormatter.format(SplinterClient.timer.fetchElapsedTime());
-        textRenderer.drawWithShadow(matrixStack, new LiteralText(time), 10, y, Color.WHITE.getRGB());
+        textRenderer.drawWithShadow(matrixStack, new LiteralText(time), 10, y, color);
     }
 }

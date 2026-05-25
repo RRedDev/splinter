@@ -1,11 +1,21 @@
 package me.rred.splinter.client.routing;
 
-import me.rred.splinter.client.events.triggers.MapTrigger;
-import me.rred.splinter.client.events.triggers.Trigger;
+import me.rred.splinter.client.routing.triggers.MapTrigger;
+import me.rred.splinter.client.routing.triggers.Trigger;
 
 public class Route {
-    private Trigger startTrigger = new MapTrigger(Trigger.TriggerSlot.START);
-    private Trigger endTrigger = new MapTrigger(Trigger.TriggerSlot.END);
+    private Trigger startTrigger;
+    private Trigger endTrigger;
+
+    public Route(Route other) {
+        this.startTrigger = other.startTrigger.copy();
+        this.endTrigger = other.endTrigger.copy();
+    }
+
+    public Route() {
+        startTrigger = new MapTrigger(Trigger.TriggerSlot.START);
+        endTrigger = new MapTrigger(Trigger.TriggerSlot.END);
+    }
 
     public Trigger getStartTrigger() {
         return startTrigger;

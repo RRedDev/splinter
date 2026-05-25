@@ -24,9 +24,13 @@ public class SetManager {
     }
 
     public void createSet(String name) {
-        if (sets.size() >= 20) return; // arbitrary cap of 8 for now
+        if (sets.size() >= 20) return; // arbitrary cap of 20 for now
         SplinterSet newSet = new SplinterSet(name, false, new Route());
         sets.add(newSet);
+    }
+    public void addSet(SplinterSet set) {
+        if (sets.size() >= 20) return;
+        sets.add(set);
     }
 
     public void deleteSet(SplinterSet set) {

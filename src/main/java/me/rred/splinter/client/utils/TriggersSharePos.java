@@ -1,7 +1,7 @@
 package me.rred.splinter.client.utils;
 
-import me.rred.splinter.client.events.triggers.PositionTrigger;
-import me.rred.splinter.client.events.triggers.Trigger;
+import me.rred.splinter.client.routing.triggers.PositionTrigger;
+import me.rred.splinter.client.routing.triggers.Trigger;
 
 public class TriggersSharePos {
     public static boolean check(Trigger a, Trigger b){

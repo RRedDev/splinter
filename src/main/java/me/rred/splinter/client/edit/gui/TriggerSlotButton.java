@@ -1,6 +1,6 @@
 package me.rred.splinter.client.edit.gui;
 
-import me.rred.splinter.client.events.triggers.Trigger;
+import me.rred.splinter.client.routing.triggers.Trigger;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;

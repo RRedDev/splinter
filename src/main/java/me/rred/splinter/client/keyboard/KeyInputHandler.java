@@ -1,5 +1,6 @@
 package me.rred.splinter.client.keyboard;
 
+import me.rred.splinter.client.StateHud;
 import me.rred.splinter.client.edit.EditSession;
 import me.rred.splinter.client.SplinterClient;
 import me.rred.splinter.client.SplinterStateMachine;
@@ -7,6 +8,8 @@ import me.rred.splinter.client.edit.gui.EditScreen;
 import me.rred.splinter.client.sets.gui.SetsScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.LiteralText;
+import net.minecraft.util.Formatting;
 import org.lwjgl.glfw.GLFW;
 
 public class KeyInputHandler {
@@ -25,16 +28,24 @@ public class KeyInputHandler {
 
 
     public static void register() {
-        GUI_SETS_BIND = new KeyBind(GUI_SETS, GLFW.GLFW_KEY_B, SetsScreen::toggle);
+        GUI_SETS_BIND = new KeyBind(GUI_SETS, GLFW.GLFW_KEY_B, () -> {
+            StateHud.setHintConsumed(true);
+            SetsScreen.toggle();
+        });
         GUI_EDIT_BIND = new KeyBind(GUI_EDIT, GLFW.GLFW_KEY_N, () -> {
             if (SplinterClient.ssm.getState() == SplinterStateMachine.State.EDIT) {
                 EditSession edit = SplinterClient.ssm.getEditSession();
-                if (edit != null) EditScreen.toggle();
+                if (edit != null) {
+                    EditScreen.toggle();
+                }
+            } else {
+                MinecraftClient client = MinecraftClient.getInstance();
+                if (client.player == null || client.world == null) return;
+                client.player.sendMessage( new LiteralText("cannot open the edit GUI in active mode. see sets GUI")
+                        .styled(s -> s.withColor(Formatting.RED)), false);
             }
         });
         TOGGLE_EDIT_BIND = new KeyBind(TOGGLE_EDIT, GLFW.GLFW_KEY_J, () -> {
-            MinecraftClient client = MinecraftClient.getInstance();
-            if (client.player == null || client.world == null) return;
 
             if (SplinterClient.ssm.getState() == SplinterStateMachine.State.EDIT) {
                 SplinterClient.ssm.setIdle();
@@ -45,7 +56,14 @@ public class KeyInputHandler {
         EDIT_SELECT_BIND = new KeyBind(EDIT_SELECT, GLFW.GLFW_KEY_M, () -> {
             if (SplinterClient.ssm.getState() == SplinterStateMachine.State.EDIT) {
                 EditSession edit = SplinterClient.ssm.getEditSession();
-                if (edit != null) edit.selectActive();
+                if (edit != null) {
+                    edit.selectActive();
+                }
+            } else {
+                MinecraftClient client = MinecraftClient.getInstance();
+                if (client.player == null || client.world == null) return;
+                client.player.sendMessage( new LiteralText("can't select and edit in active mode. see sets GUI")
+                        .styled(s -> s.withColor(Formatting.RED)), false);
             }
         });
 

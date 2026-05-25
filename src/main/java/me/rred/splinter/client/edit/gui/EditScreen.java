@@ -2,7 +2,7 @@ package me.rred.splinter.client.edit.gui;
 
 import me.rred.splinter.client.edit.EditSession;
 import me.rred.splinter.client.SplinterClient;
-import me.rred.splinter.client.events.triggers.Trigger;
+import me.rred.splinter.client.routing.triggers.Trigger;
 import me.rred.splinter.client.keyboard.KeyInputHandler;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;

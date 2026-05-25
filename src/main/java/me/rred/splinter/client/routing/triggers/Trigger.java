@@ -1,4 +1,4 @@
-package me.rred.splinter.client.events.triggers;
+package me.rred.splinter.client.routing.triggers;
 
 public abstract class Trigger {
 
@@ -13,6 +13,8 @@ public abstract class Trigger {
     }
 
     public abstract TriggerType getType();
+
+    public abstract Trigger copy();
 
     // called by RouteHandler each tick for poll-based events;
     public void tick() {}
@@ -32,6 +34,10 @@ public abstract class Trigger {
 
     public TriggerSlot getTriggerSlot() {
         return triggerSlot;
+    }
+
+    public boolean slotIsStart(Trigger trigger) {
+        return trigger.getTriggerSlot() == TriggerSlot.START;
     }
 
     public abstract boolean equals(Object obj);
