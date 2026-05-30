@@ -21,6 +21,7 @@ public class SplinterColors {
     public static int PANEL_BG = DEEP;
     public static int TEXT = WHITE;
     public static int SUB_TEXT = LIGHT;
+    public static int MIDDLE_PANEL = DEEPER;
 
 
     public static int alpha(int color, int alpha) {

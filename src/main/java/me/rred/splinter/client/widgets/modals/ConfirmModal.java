@@ -2,6 +2,7 @@ package me.rred.splinter.client.widgets.modals;
 
 import me.rred.splinter.client.utils.SplinterColors;
 import me.rred.splinter.client.widgets.SplinterButton;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
@@ -28,10 +29,13 @@ public class ConfirmModal extends SplinterModal{
     }
 
     protected void init() {
-        int buttonWidth = (int)(width * 0.8);
-        int buttonHeight = (int)(height * 0.4);
-        int buttonX = x + (width - buttonWidth) / 2; // centered
-        int buttonY = y + (int)(0.9 * height) - buttonHeight; // shifted up
+        MinecraftClient client = MinecraftClient.getInstance();
+        TextRenderer textRenderer = client.textRenderer;
+
+        int buttonWidth = (int)(width * 0.6);
+        int buttonHeight = (textRenderer.fontHeight * 2);
+        int buttonX = x + (width - buttonWidth) / 2;
+        int buttonY = y + (int)(0.9 * height) - buttonHeight;
 
         confirmButton = new SplinterButton(buttonX, buttonY, buttonWidth, buttonHeight,
                 new LiteralText("CONFIRM"),
@@ -46,7 +50,7 @@ public class ConfirmModal extends SplinterModal{
         fill(matrixStack, x + 1, y + 1, x + width - 1, y + height - 1, SplinterColors.PANEL_BG);
 
         int textX = x + (width / 2) - textRenderer.getWidth(message) / 2;
-        int textY = y + (int)(height * 0.1);
+        int textY = y + (int)(height * 0.2);
 
         textRenderer.drawWithShadow(matrixStack, message, textX, textY, SplinterColors.TEXT);
         if (confirmButton != null) {
@@ -69,6 +73,4 @@ public class ConfirmModal extends SplinterModal{
         }
         return false;
     }
-
-
 }

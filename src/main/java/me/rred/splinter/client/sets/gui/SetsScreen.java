@@ -4,6 +4,7 @@ import me.rred.splinter.Splinter;
 import me.rred.splinter.client.SplinterClient;
 import me.rred.splinter.client.keyboard.KeyInputHandler;
 import me.rred.splinter.client.routing.Route;
+import me.rred.splinter.client.utils.SplinterColors;
 import me.rred.splinter.client.widgets.modals.ConfirmModal;
 import me.rred.splinter.client.widgets.modals.InputModal;
 import me.rred.splinter.client.widgets.modals.SplinterModal;
@@ -149,7 +150,7 @@ public class SetsScreen extends Screen {
                                             activeModal.openModal(width, height);
                                         }, 0xFFFFFF, true),
                                         new ContextMenu.Option("Clear", () -> {
-                                            activeModal = new ConfirmModal("Clear Times?", () -> {
+                                            activeModal = new ConfirmModal("Clear \"" + set.getName() + "\"?", () -> {
                                                 activeSet.clearSet();
                                                 activeModal = null;
                                                 init();
@@ -164,7 +165,7 @@ public class SetsScreen extends Screen {
                                                 0xFFFFFF,
                                                 true),
                                         new ContextMenu.Option("Delete", () -> {
-                                            activeModal = new ConfirmModal("Are You Sure?", () -> {
+                                            activeModal = new ConfirmModal("Delete \"" + set.getName() + "\"?", () -> {
                                                 SplinterClient.setManager.deleteSet(set);
                                                 activeModal = null;
                                                 init();
@@ -250,7 +251,7 @@ public class SetsScreen extends Screen {
         fill(matrixStack, screenLeft, screenTop, screenRight, screenTop + tabHeight, topPanelColor);
 
         // middle panel (sets, times, stats)
-        int middlePanelColor = 0xE0383840; // 88% opacity
+        int middlePanelColor = SplinterColors.alpha(SplinterColors.MIDDLE_PANEL, 0xE0); // 88% opacity
         fill(matrixStack, screenLeft, listTop, screenRight, listBottom, middlePanelColor);
 
         int textHeight = textRenderer.fontHeight;
