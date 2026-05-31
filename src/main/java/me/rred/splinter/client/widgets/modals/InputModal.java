@@ -34,7 +34,7 @@ public class InputModal extends SplinterModal{
     public void openModal(int screenWidth, int screenHeight) {
         this.width = (int)(screenWidth * 0.25);
         // make room for sub message if necessary
-        this.height = subMessage != null ? (int)(screenHeight * 0.35) : (int)(screenHeight * 0.25);;
+        this.height = subMessage != null ? (int)(screenHeight * 0.35) : (int)(screenHeight * 0.25);
         this.x = (screenWidth - width) / 2;
         this.y = (screenHeight - height) / 2;
 
@@ -68,9 +68,13 @@ public class InputModal extends SplinterModal{
 
     public void render(MatrixStack matrixStack, TextRenderer textRenderer,
                        int mouseX, int mouseY) {
+        // push the modal 1 pixel in Z to put it in front of the main GUI
+        matrixStack.push();
+        matrixStack.translate(0, 0, 1);
+
         // border then inside fill
         fill(matrixStack, x, y, x + width, y + height, SplinterColors.BORDER);
-        fill(matrixStack, x + 1, y + 1, x + width - 1, y + height - 1, SplinterColors.PANEL_BG);
+        fill(matrixStack, x + 1, y + 1, x + width - 1, y + height - 1, SplinterColors.MODAL_BG);
 
         int textX = x + (width / 2) - textRenderer.getWidth(message) / 2;
         int textY = y + (int)(height * 0.1);
@@ -89,6 +93,7 @@ public class InputModal extends SplinterModal{
         if (input != null) {
             input.render(matrixStack, mouseX, mouseY, 0);
         }
+        matrixStack.pop();
     }
 
     public String getTextInput() {

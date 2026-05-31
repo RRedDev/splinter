@@ -45,9 +45,13 @@ public class ConfirmModal extends SplinterModal{
 
     public void render(MatrixStack matrixStack, TextRenderer textRenderer,
                        int mouseX, int mouseY) {
+        // push the modal 1 pixel in Z to put it in front of the main GUI
+        matrixStack.push();
+        matrixStack.translate(0, 0, 1);
+
         // border then inside fill
         fill(matrixStack, x, y, x + width, y + height, SplinterColors.BORDER);
-        fill(matrixStack, x + 1, y + 1, x + width - 1, y + height - 1, SplinterColors.PANEL_BG);
+        fill(matrixStack, x + 1, y + 1, x + width - 1, y + height - 1, SplinterColors.MODAL_BG);
 
         int textX = x + (width / 2) - textRenderer.getWidth(message) / 2;
         int textY = y + (int)(height * 0.2);
@@ -56,6 +60,7 @@ public class ConfirmModal extends SplinterModal{
         if (confirmButton != null) {
             confirmButton.render(matrixStack, mouseX, mouseY, 0);
         }
+        matrixStack.pop();
     }
 
     public boolean handleClick(double mouseX, double mouseY, int button) {

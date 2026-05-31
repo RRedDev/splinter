@@ -28,8 +28,8 @@ public class SplinterButton extends AbstractPressableButtonWidget {
         MinecraftClient minecraftClient = MinecraftClient.getInstance();
         TextRenderer textRenderer = minecraftClient.textRenderer;
 
-        int borderColor = isHovered() ? SplinterColors.BORDER_HOVER : SplinterColors.BORDER;
-        int fillColor = SplinterColors.FILL;
+        int borderColor = isHovered() ? SplinterColors.BORDER_HOVER : SplinterColors.BUTTON_BORDER;
+        int fillColor = SplinterColors.BUTTON_FILL;
         int textColor = SplinterColors.TEXT;
 
         // border

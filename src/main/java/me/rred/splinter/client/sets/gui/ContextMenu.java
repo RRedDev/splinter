@@ -1,7 +1,9 @@
 package me.rred.splinter.client.sets.gui;
 
+import me.rred.splinter.Splinter;
 import me.rred.splinter.client.sets.SplinterSet;
 import me.rred.splinter.client.utils.TruncateText;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
@@ -32,7 +34,7 @@ public class ContextMenu {
     private SplinterSet set;
     private int hoveredOption = -1;
 
-    public void open(int x, int y, SplinterSet set, List<Option> options) {
+    public void open(int x, int y, int screenBottom, SplinterSet set, List<Option> options) {
         if (set == null) {
             return;
         }
@@ -40,12 +42,13 @@ public class ContextMenu {
         this.y = y;
         this.set = set;
         this.options = options;
+        shiftMenu(screenBottom);
         this.visible = true;
     }
 
     public void render(MatrixStack matrixStack, TextRenderer textRenderer, int mouseX, int mouseY) {
         if (!visible) return;
-        int totalHeight = ITEM_HEIGHT * (options.size() + 1);
+        int totalHeight = ITEM_HEIGHT * (options.size() + 1) + 1;
         hoveredOption = -1;
 
         // background
@@ -95,4 +98,13 @@ public class ContextMenu {
         }
         return false;
     }
+
+    private void shiftMenu(int screenBottom) {
+        int totalHeight = ITEM_HEIGHT * (options.size() + 1) + 1;
+        Splinter.LOGGER.info("shifting menu...");
+        if (y + totalHeight < screenBottom) return;
+        Splinter.LOGGER.info("menu shifted!");
+        this.y = y - totalHeight;
+    }
+
 }

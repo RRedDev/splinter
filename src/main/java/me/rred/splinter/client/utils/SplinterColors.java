@@ -1,7 +1,5 @@
 package me.rred.splinter.client.utils;
 
-import java.awt.*;
-
 public class SplinterColors {
     // raw Splinter palette
     public static int WHITE = 0xFFFFFFFF;
@@ -13,18 +11,29 @@ public class SplinterColors {
     public static int SLATE_BLUE = 0xFF4A4F6A;
     public static int DEEP_SLATE = 0xFF3D4466;
     public static int DARK_NAVY = 0xFF2E3650;
+
     public static int CHARCOAL = 0xFF1C1F2A;
+    public static int CHARCOAL_BLUE = 0xFF252838;
+    public static int DEEP_NAVY = 0xFF2E3248;
+    public static int SLATE_NAVY  = 0xFF3A3E55;
+    public static int MUTED_SLATE = 0xFF474C65;
+    public static int GRAY_BLUE  = 0xFF6B7080;
+    public static int SOFT_BLUE = 0xFFABB0BF;
+    public static int LAVENDER_GRAY = 0xFFC8CCD8;
 
     // default colors
-    public static int BORDER = CHARCOAL;
-    public static int BORDER_OTHER = DUSTY_MAUVE;
-    public static int BORDER_HOVER = WARM_TAN;
-    public static int FILL = SLATE_BLUE;
-    public static int PANEL_BG = MUTED_PURPLE;
+    public static int BORDER = GRAY_BLUE;
+    public static int BORDER_OTHER = SOFT_BLUE;
+    public static int BORDER_HOVER = LAVENDER_GRAY;
     public static int TEXT = WHITE;
-    public static int SUB_TEXT = WARM_TAN;
+    public static int SUB_TEXT = SOFT_BLUE;
+
+    public static int BUTTON_FILL = GRAY_BLUE;
+    public static int BUTTON_BORDER = CHARCOAL;
+
+    public static int MODAL_BG = CHARCOAL_BLUE;
     public static int MIDDLE_PANEL = LIGHT_GRAY;
-    public static int TOP_PANEL = WARM_GRAY;
+    public static int TOP_PANEL = CHARCOAL_BLUE;
 
 
     public static int alpha(int color, int alpha) {

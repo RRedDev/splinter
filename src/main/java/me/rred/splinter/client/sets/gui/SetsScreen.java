@@ -51,9 +51,8 @@ public class SetsScreen extends Screen {
     private TimesListPanel timesListPanelB;
     private ContextMenu contextMenu = new ContextMenu();
     private int borderWidth = 1;
-    private int setsListWidth = 80;
-    private int timesListWidth = 80;
     private int[] partitions = new int[5];
+    private int partitionWidth;
     private int lastClickX, lastClickY;
     private SplinterModal activeModal;
 
@@ -82,11 +81,12 @@ public class SetsScreen extends Screen {
         listBottom = screenBottom;
 
         // list starting X coordinate (after border) list1 starts at screenLeft
-        partitions[0] = screenLeft + borderWidth;
-        int partitionWidth = width / 7;
+        partitions[0] = screenLeft;
+        partitionWidth = width / 7;
         for (int i = 1; i < 5; i++) {
             partitions[i] = partitions[i - 1] + partitionWidth + borderWidth;
         }
+        // partitions[1] = start of sets list, 2 = A timesList, 3 = B timesList
 
         // panels for middle section
         int listHeight = listBottom - listTop;
@@ -117,7 +117,7 @@ public class SetsScreen extends Screen {
                             // RC + SHIFT or both are full
                             if (hasShiftDown() || (setA != null && setB != null)) {
                                 // context menu
-                                contextMenu.open(lastClickX, lastClickY, set, List.of(
+                                contextMenu.open(lastClickX, lastClickY, height, set, List.of(
                                         new ContextMenu.Option("Set as A", () -> {
                                             SplinterClient.setManager.setDisplayedSetA(set);
                                             init();
@@ -133,12 +133,12 @@ public class SetsScreen extends Screen {
                                                 if(activeModal instanceof InputModal im) {
                                                     String name = im.getTextInput();
                                                     if (name == null || name.isEmpty()) return;
-                                                    activeSet.renameSet(name);
+                                                    set.renameSet(name);
                                                 }
                                                 activeModal = null;
                                                 init();
                                             });
-                                            String setName = activeSet.getName();
+                                            String setName = set.getName();
                                             activeModal.setSubmessage(setName);
                                             activeModal.openModal(width, height);
                                         }, 0xFFFFFF, true),
@@ -177,8 +177,8 @@ public class SetsScreen extends Screen {
                     }
                 );
 
-        timesListPanelA = new TimesListPanel(partitions[2], listTop, partitionWidth, listHeight, setA);
-        timesListPanelB = new TimesListPanel(partitions[3], listTop, partitionWidth, listHeight, setB);
+        timesListPanelA = new TimesListPanel(partitions[1], listTop, partitionWidth, listHeight, setA);
+        timesListPanelB = new TimesListPanel(partitions[2], listTop, partitionWidth, listHeight, setB);
 
         // set creation button
         int createButtonHeight = 20;
@@ -202,7 +202,7 @@ public class SetsScreen extends Screen {
         if (activeModal != null) activeModal.openModal(width, height);
 
         // dynamic header buttons to clear the specified displayed set
-        int headerWidth = timesListWidth;
+        int headerWidth = partitionWidth;
         headerButtonLen = 20;
         int startX = screenLeft + partitionWidth;
 
@@ -235,7 +235,7 @@ public class SetsScreen extends Screen {
         drawCenteredText(matrixStack, textRenderer, title, width / 2, 10, textColor);
 
         // top panel (create button, headers)
-        int topPanelColor = SplinterColors.alpha(SplinterColors.TOP_PANEL, 0xE0);;
+        int topPanelColor = SplinterColors.alpha(SplinterColors.TOP_PANEL, 0x95);;
         fill(matrixStack, screenLeft, screenTop, screenRight, screenTop + tabHeight, topPanelColor);
 
         // middle panel (sets, times, stats)
@@ -249,8 +249,8 @@ public class SetsScreen extends Screen {
         String menuHintText1 = "Shift + Right Mouse";
         String menuHintText2 = "to open set context menu";
 
-        textRenderer.drawWithShadow(matrixStack, menuHintText1, partitions[4] + 5, screenBottom - hintGap - (vertGap + textHeight) * 5, textColor);
-        textRenderer.drawWithShadow(matrixStack, menuHintText2, partitions[4] + 5, screenBottom - hintGap - (vertGap + textHeight) * 4, textColor);// top panel (tabs)
+        textRenderer.drawWithShadow(matrixStack, menuHintText1, partitions[3] + 5, screenBottom - hintGap - (vertGap + textHeight) * 5, textColor);
+        textRenderer.drawWithShadow(matrixStack, menuHintText2, partitions[3] + 5, screenBottom - hintGap - (vertGap + textHeight) * 4, textColor);// top panel (tabs)
 
         // edit mode hint
         String keybind = KeyInputHandler.TOGGLE_EDIT_BIND.getKeyBinding().getBoundKeyLocalizedText().getString();
@@ -258,11 +258,11 @@ public class SetsScreen extends Screen {
         String editMessage2 = "pressing the \"■\" symbol";
         String editMessage3 = "& enter edit mode with " + "\"" + keybind + "\"";
 
-        textRenderer.drawWithShadow(matrixStack, editMessage1, partitions[4] + 5, screenBottom - (vertGap + textHeight)* 3, textColor);
-        textRenderer.drawWithShadow(matrixStack, editMessage2, partitions[4] + 5, screenBottom - (vertGap + textHeight) * 2, textColor);
-        textRenderer.drawWithShadow(matrixStack, editMessage3, partitions[4] + 5, screenBottom - (vertGap + textHeight), textColor);// top panel (tabs)
+        textRenderer.drawWithShadow(matrixStack, editMessage1, partitions[3] + 5, screenBottom - (vertGap + textHeight)* 3, textColor);
+        textRenderer.drawWithShadow(matrixStack, editMessage2, partitions[3] + 5, screenBottom - (vertGap + textHeight) * 2, textColor);
+        textRenderer.drawWithShadow(matrixStack, editMessage3, partitions[3] + 5, screenBottom - (vertGap + textHeight), textColor);// top panel (tabs)
 
-        // outer border
+        // outer border, screen is inside the border
         // top
         int outerBorderColor = SplinterColors.BORDER;
         fill(matrixStack, screenLeft - borderWidth, screenTop - borderWidth, screenRight + borderWidth, screenTop, outerBorderColor);
@@ -281,9 +281,9 @@ public class SetsScreen extends Screen {
 
         // headers
         headerTextY = screenTop + (tabHeight - textRenderer.fontHeight + 1) / 2;
-        int setAX = partitions[2] + headerButtonLen + 3;
-        int setBX = setAX + timesListWidth;
-        int headerWidth = timesListWidth - headerButtonLen - 6;
+        int setAX = partitions[1] + headerButtonLen + 3;
+        int setBX = setAX + partitionWidth;
+        int headerWidth = partitionWidth - headerButtonLen - 6;
         int headersBorderColor = SplinterColors.BORDER_OTHER;
         DrawableHelper.fill(matrixStack, screenLeft, listTop, screenRight,  listTop + borderWidth, headersBorderColor);
 
@@ -305,7 +305,7 @@ public class SetsScreen extends Screen {
         int scissorWidth = screenRight - screenLeft;
         int scissorHeight = listBottom - listTop;
 
-        ScissorUtil.enable(scale, screenLeft, listTop, scissorWidth, scissorHeight);
+        ScissorUtil.enable(scale, screenLeft, listTop + borderWidth, scissorWidth, scissorHeight);
         boolean showSetsHover = !contextMenu.isVisible();
         setsListPanel.render(matrixStack, textRenderer, mouseX, mouseY, showSetsHover);
         timesListPanelA.render(matrixStack, textRenderer, mouseX, mouseY, false);
@@ -399,12 +399,12 @@ public class SetsScreen extends Screen {
     }
 
     private void renderStats(MatrixStack matrixStack) {
-        int statsX = partitions[4];
+        int statsX = partitions[3];
         int headerWidth = screenRight - statsX;
         drawCenteredText(matrixStack, textRenderer, new LiteralText("Stats Panel"), statsX + headerWidth / 2, headerTextY, textColor);
 
-        int panelWidth = screenRight - partitions[4];
-        int panelX = partitions[4];
+        int panelWidth = screenRight - partitions[3];
+        int panelX = partitions[3];
 
         int dividerColor = 0xFF555560;
         // beginning position of the next column, after the border
