@@ -4,24 +4,27 @@ import java.awt.*;
 
 public class SplinterColors {
     // raw Splinter palette
-    public static int WHITE = 0xFFFFFF;
-    public static int LIGHT = 0xFFC5D8E0;
-    public static int MID_LIGHT = 0xFF7B8FC0;
-    public static int MID = 0xFF5E6FAD;
-    public static int MID_DARK = 0xFF4A5494;
-    public static int DARK = 0xFF363A78;
-    public static int DEEP = 0xFF252460;
-    public static int DEEPER = 0xFF1A1848;
-    public static int DARKEST = 0xFF140F2E;
+    public static int WHITE = 0xFFFFFFFF;
+    public static int LIGHT_GRAY = 0xFF383840;
+    public static int WARM_TAN = 0xFFC4A898;
+    public static int DUSTY_MAUVE = 0xFF9A8A90;
+    public static int WARM_GRAY = 0xFF7A6E78;
+    public static int MUTED_PURPLE = 0xFF6B6575;
+    public static int SLATE_BLUE = 0xFF4A4F6A;
+    public static int DEEP_SLATE = 0xFF3D4466;
+    public static int DARK_NAVY = 0xFF2E3650;
+    public static int CHARCOAL = 0xFF1C1F2A;
 
     // default colors
-    public static int BORDER = DARKEST;
-    public static int BORDER_HOVER = LIGHT;
-    public static int FILL = MID;
-    public static int PANEL_BG = DEEP;
+    public static int BORDER = CHARCOAL;
+    public static int BORDER_OTHER = DUSTY_MAUVE;
+    public static int BORDER_HOVER = WARM_TAN;
+    public static int FILL = SLATE_BLUE;
+    public static int PANEL_BG = MUTED_PURPLE;
     public static int TEXT = WHITE;
-    public static int SUB_TEXT = LIGHT;
-    public static int MIDDLE_PANEL = DEEPER;
+    public static int SUB_TEXT = WARM_TAN;
+    public static int MIDDLE_PANEL = LIGHT_GRAY;
+    public static int TOP_PANEL = WARM_GRAY;
 
 
     public static int alpha(int color, int alpha) {

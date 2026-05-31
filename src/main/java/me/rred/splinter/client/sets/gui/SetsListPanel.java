@@ -2,6 +2,7 @@ package me.rred.splinter.client.sets.gui;
 
 import me.rred.splinter.client.SplinterClient;
 import me.rred.splinter.client.sets.SplinterSet;
+import me.rred.splinter.client.utils.SplinterColors;
 import me.rred.splinter.client.utils.TruncateText;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
@@ -64,7 +65,8 @@ public class SetsListPanel extends ListPanel {
             DrawableHelper.fill(matrixStack, x, itemY, x + width, itemY + LINE_HEIGHT, bgColor);
 
             // draw bottom border for each record
-            DrawableHelper.fill(matrixStack, x, itemY + LINE_HEIGHT, x + width, itemY + LINE_HEIGHT + 1, 0x80666666);
+            int border = SplinterColors.BORDER_OTHER;
+            DrawableHelper.fill(matrixStack, x, itemY + LINE_HEIGHT, x + width, itemY + LINE_HEIGHT + 1, border);
 
             // draw text
             int pauseSize = 11;
